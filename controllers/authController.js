@@ -11,6 +11,17 @@ const signToken = (id) => {
 	});
 };
 
+export const findAll = async (req, res) => {
+	const users = await User.find();
+	res.status(200).json({ success: true, count: users.length, data: users });
+};
+
+export const findById = async (req, res) => {
+	const user = await User.findById(req.id);
+	if (!user) return res.status(404).json({ message: `User not found with id ${req.params.id}` });
+	res.status(200).json({ success: true, data: user });
+};
+
 
 export const uploadImage = async (req, res, next) => {
 	console.log("POST /api/auth/uploadImage called");
@@ -199,3 +210,50 @@ export const update = async (req, res) => {
 	}
 };
 
+
+
+export const changePassword = async (req, res) => {
+	const { userId, password } = req.body;
+	console.log("Change Password API called for user:", userId);
+
+	try {
+		const user = await User.findById(userId);
+
+		if (!user) {
+			console.log("User not found");
+			return res.status(404).json({ message: "User not found" });
+		}
+
+		// Check if the new password is the same as the old password
+		const isPasswordSame = await bcrypt.compare(password, user.password);
+
+		console.log("Provided Password:", password);
+		console.log("Is password the same:", isPasswordSame);
+
+		if (isPasswordSame) {
+			return res.status(400).json({ message: "New password cannot be the same as the old password" });
+		}
+
+		// Hash new password
+		const salt = await bcrypt.genSalt(10);
+		const hashedPassword = await bcrypt.hash(password, salt);
+
+		// Update user password
+		const updatedUser = await User.findByIdAndUpdate(
+			userId,
+			{ password: hashedPassword },
+			{ new: true, runValidators: true }
+		);
+
+		console.log("Password successfully updated for user:", userId);
+
+		res.status(200).json({
+			success: true,
+			message: "Password updated successfully",
+			data: updatedUser,
+		});
+	} catch (error) {
+		console.error("Error updating password:", error);
+		res.status(500).json({ message: "Internal server error", error });
+	}
+};

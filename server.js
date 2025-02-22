@@ -9,6 +9,8 @@ import path from "path";
 import authRoutes from "./routes/authRoutes.js";
 import matchRoutes from "./routes/matchRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
+import photoRoutes from "./routes/photosRoutes.js";
+import preferenceRoutes from "./routes/PreferenceRoutes.js";
 import userDetailsRoutes from "./routes/userDetailsRoutes.js";
 
 import { connectDB } from "./config/db.js";
@@ -37,6 +39,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/userDetails", userDetailsRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/photos", photoRoutes);
+app.use("/api/preference", preferenceRoutes);
+
 
 if (process.env.NODE_ENV === "production") {
 	app.use(express.static(path.join(__dirname, "/client/dist")));

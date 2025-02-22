@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 // Set up Multer storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../../client/public/profilePhotos"));
+    cb(null, path.join(__dirname, "../../client/public/userImages"));
   },
   filename: (req, file, cb) => {
     let ext = path.extname(file.originalname);
@@ -32,11 +32,11 @@ const imageFileFilter = (req, file, cb) => {
   cb(null, true);
 };
 
-export const upload = multer({
+export const photo = multer({
   storage: storage,
   fileFilter: imageFileFilter,
   limits: { fileSize: maxSize },
-}).single("profilePicture");
+}).single("userPhoto");
 
 
 

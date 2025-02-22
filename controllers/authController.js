@@ -211,6 +211,36 @@ export const update = async (req, res) => {
 };
 
 
+export const checkPassword = async (req, res) => {
+	const { userId, password } = req.body;
+	try {
+		const user = await User.findById(userId);
+
+		if (!user) {
+			console.log("User not found");
+			return res.status(404).json({ message: "User not found" });
+		}
+
+		// Check if the new password is the same as the old password
+		const isPasswordSame = await bcrypt.compare(password, user.password);
+
+
+
+		if (isPasswordSame) {
+			return res.status(200).json({ message: "The password is Correct" });
+		}
+		else {
+			return res.status(401).json({ message: "Invalid Password" });
+		}
+
+
+	} catch (error) {
+		console.error("Error checking password:", error);
+		res.status(500).json({ message: "Internal server error", error });
+	}
+
+};
+
 
 export const changePassword = async (req, res) => {
 	const { userId, password } = req.body;

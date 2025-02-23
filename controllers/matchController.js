@@ -1,3 +1,4 @@
+import Preference from "../models/Preference.js";
 import User from "../models/User.js";
 import { getConnectedUsers, getIO } from "../socket/socket.server.js";
 
@@ -66,8 +67,11 @@ export const swipeRight = async (req, res) => {
 
 export const swipeLeft = async (req, res) => {
 	try {
+
 		const { dislikedUserId } = req.params;
+		console.log("disliked user id",dislikedUserId)
 		const currentUser = await User.findById(req.user.id);
+		console.log("current user",currentUser)
 
 		if (!currentUser.dislikes.includes(dislikedUserId)) {
 			currentUser.dislikes.push(dislikedUserId);
@@ -106,28 +110,129 @@ export const getMatches = async (req, res) => {
 	}
 };
 
+
+export const getLikers = async (req, res) => {
+	try {
+		console.log("inside this")
+		const { userId } = req.params;
+
+		// Fetch the current user
+		const currentUser = await User.findById(userId);
+		if (!currentUser) {
+			return res.status(404).json({ message: "User not found." });
+		}
+
+		// Fetch users where the likes array contains the given userId
+		let usersWhoLiked = await User.find({ likes: userId });
+
+		console.log("who liked are", usersWhoLiked);
+
+		// Filter out users already in currentUser's likes, dislikes, or matches
+		usersWhoLiked = usersWhoLiked.filter(user =>
+			!currentUser.likes.includes(user._id.toString()) &&
+			!currentUser.dislikes.includes(user._id.toString()) &&
+			!currentUser.matches.includes(user._id.toString())
+		);
+
+		console.log("who liked are =>", usersWhoLiked);
+
+
+		if (!usersWhoLiked.length) {
+			return res.status(404).json({ message: "No new users have liked this user." });
+		}
+
+		res.status(200).json(usersWhoLiked);
+	} catch (error) {
+		console.error("Error fetching users who liked:", error);
+		res.status(500).json({ message: "Internal Server Error" });
+	}
+};
+
+
+
 export const getUserProfiles = async (req, res) => {
 	try {
+		// Get current user based on authenticated req.user.id
 		const currentUser = await User.findById(req.user.id);
+		if (!currentUser) {
+			return res.status(404).json({ success: false, message: "User not found" });
+		}
 
-		const users = await User.find({
-			$and: [
-				{ _id: { $ne: currentUser.id } },
-				{ _id: { $nin: currentUser.likes } },
-				{ _id: { $nin: currentUser.dislikes } },
-				{ _id: { $nin: currentUser.matches } },
-				//To Do
-				//update this filter later on
-				// {
-				// 	gender:
-				// 		currentUser.genderPreference === "both"
-				// 			? { $in: ["male", "female"] }
-				// 			: currentUser.genderPreference,
-				// },
-				// { genderPreference: { $in: [currentUser.gender, "both"] } },
-			],
-		});
+		// Get the current user's preference document
+		const currentPreference = await Preference.findOne({ userId: req.user.id });
+		console.log("this is the list of prefs", currentPreference);
 
+		// Start building the query criteria.
+		// Exclude the current user as well as users already liked, disliked, or matched.
+		const criteria = {
+			_id: {
+				$ne: currentUser.id,
+				$nin: [
+					...(currentUser.likes?.length ? currentUser.likes : []),
+					...(currentUser.dislikes?.length ? currentUser.dislikes : []),
+					...(currentUser.matches?.length ? currentUser.matches : [])
+				]
+			}
+		};
+		const user1 = await User.find(criteria);
+		console.log("users found step 1", user1);
+
+		// Filter by gender if the preference is not "any"
+		if (
+			currentPreference &&
+			currentPreference.preferredGender &&
+			currentPreference.preferredGender.toLowerCase() !== "any"
+		) {
+			criteria.gender = currentPreference.preferredGender;
+		}
+
+		const user2 = await User.find(criteria);
+		console.log("users found step 2", user2);
+
+		// Filter by age using birthDate (if minAge and maxAge exist)
+		// if (currentPreference && currentPreference.minAge && currentPreference.maxAge) {
+		// 	const now = new Date();
+		// 	// Earliest acceptable birthDate: user must be at most maxAge years old
+		// 	const earliestBirthDate = new Date(now);
+		// 	earliestBirthDate.setFullYear(now.getFullYear() - currentPreference.maxAge);
+
+		// 	// Latest acceptable birthDate: user must be at least minAge years old
+		// 	const latestBirthDate = new Date(now);
+		// 	latestBirthDate.setFullYear(now.getFullYear() - currentPreference.minAge);
+
+		// 	criteria.birthDate = { $gte: earliestBirthDate, $lte: latestBirthDate };
+		// }
+
+		// const user3 = await User.find(criteria);
+		// console.log("users found step 3", user3);
+
+
+		// Filter by preferred star sign if it is not "any"
+		if (
+			currentPreference &&
+			currentPreference.preferredStarSign &&
+			currentPreference.preferredStarSign.toLowerCase() !== "any"
+		) {
+			criteria.starSign = currentPreference.preferredStarSign;
+		}
+
+		const user4 = await User.find(criteria);
+		console.log("users found step 4", user4);
+
+		// Filter by preferred religion if it is not "any"
+		if (
+			currentPreference &&
+			currentPreference.preferredReligion &&
+			currentPreference.preferredReligion.toLowerCase() !== "any"
+		) {
+			criteria.religion = currentPreference.preferredReligion;
+		}
+
+		console.log("given criteria", criteria);
+
+		// Now find users matching the constructed criteria.
+		const users = await User.find(criteria);
+		console.log("users found", users);
 
 		res.status(200).json({
 			success: true,
@@ -135,7 +240,6 @@ export const getUserProfiles = async (req, res) => {
 		});
 	} catch (error) {
 		console.log("Error in getUserProfiles: ", error);
-
 		res.status(500).json({
 			success: false,
 			message: "Internal server error",

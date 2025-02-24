@@ -64,3 +64,57 @@ export const update = async (req, res) => {
         res.status(500).json({ error: "Failed to update preferences", details: e.message });
     }
 };
+
+export const findPreferenceByUserId = async (req, res) => {
+    try {
+        let preference = await Preference.findOne({ userId: req.params.id }); // Use findOne() instead of find()
+        console.log("User ID:", req.params.id);
+
+        if (!preference) {
+            const defaultPreferences = {
+                userId: req.params.id,
+                applyFilter: false,
+                preferredGender: "any",
+                minAge: 16,
+                maxAge: 60,
+                relationType: "any",
+                preferredStarSign: "any",
+                preferredReligion: "any"
+            };
+
+            preference = new Preference(defaultPreferences);
+            preference = await preference.save();
+            console.log("New preference created:", preference);
+        }
+
+        return res.status(200).json(preference);
+    } catch (error) {
+        console.error("Error finding preference:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
+export const updatePreferenceByUserId = async (req, res) => {
+    try {
+        // Extract user id from route parameters
+        const userId = req.params.id;
+        const { preferredGender, minAge, maxAge, relationType, preferredStarSign, preferredReligion } = req.body;
+
+        // Find and update the preference for that user
+        const updatedPreference = await Preference.findOneAndUpdate(
+            { userId },
+            { preferredGender, minAge, maxAge, relationType, preferredStarSign, preferredReligion },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedPreference) {
+            return res.status(404).json({ error: "Preference not found" });
+        }
+
+        res.status(200).json(updatedPreference);
+    } catch (error) {
+        console.error("Error updating preference by user id:", error);
+        res.status(500).json({ message: "Failed to update preference", error });
+    }
+};

@@ -6,10 +6,14 @@ const preferenceSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
+    applyFilter: {
+        type: Boolean,
+        default: false,
+        required: false
+    },
 
     preferredGender: {
         type: String,
-        enum: ['Male', 'Female', 'Other'],
         required: false
     },
 
@@ -25,7 +29,6 @@ const preferenceSchema = new mongoose.Schema({
 
     relationType: {
         type: String,
-        enum: ['Casual dates', 'Long term relationship', 'Marriage', 'Friendship'],
         required: false
     },
 
@@ -36,12 +39,11 @@ const preferenceSchema = new mongoose.Schema({
 
     preferredReligion: {
         type: String,
-        enum: ['Hindu', 'Christian', 'Muslim', 'Buddhist', 'Atheist'],
         required: false
     },
 
 
 });
 
-const prefe =  mongoose.model("Preferences", preferenceSchema);
+const prefe = mongoose.model("Preferences", preferenceSchema);
 export default prefe;

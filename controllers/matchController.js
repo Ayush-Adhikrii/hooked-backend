@@ -69,9 +69,9 @@ export const swipeLeft = async (req, res) => {
 	try {
 
 		const { dislikedUserId } = req.params;
-		console.log("disliked user id",dislikedUserId)
+		console.log("disliked user id", dislikedUserId)
 		const currentUser = await User.findById(req.user.id);
-		console.log("current user",currentUser)
+		console.log("current user", currentUser)
 
 		if (!currentUser.dislikes.includes(dislikedUserId)) {
 			currentUser.dislikes.push(dislikedUserId);
@@ -151,9 +151,10 @@ export const getLikers = async (req, res) => {
 
 
 export const getUserProfiles = async (req, res) => {
+	console.log("this is user", req.user)
 	try {
 		// Get current user based on authenticated req.user.id
-		const currentUser = await User.findById(req.user.id);
+		const currentUser = await User.findById(req.user._id);
 		if (!currentUser) {
 			return res.status(404).json({ success: false, message: "User not found" });
 		}
@@ -174,8 +175,7 @@ export const getUserProfiles = async (req, res) => {
 				]
 			}
 		};
-		const user1 = await User.find(criteria);
-		console.log("users found step 1", user1);
+	
 
 		// Filter by gender if the preference is not "any"
 		if (
@@ -186,8 +186,7 @@ export const getUserProfiles = async (req, res) => {
 			criteria.gender = currentPreference.preferredGender;
 		}
 
-		const user2 = await User.find(criteria);
-		console.log("users found step 2", user2);
+	
 
 		// Filter by age using birthDate (if minAge and maxAge exist)
 		// if (currentPreference && currentPreference.minAge && currentPreference.maxAge) {
@@ -216,8 +215,6 @@ export const getUserProfiles = async (req, res) => {
 			criteria.starSign = currentPreference.preferredStarSign;
 		}
 
-		const user4 = await User.find(criteria);
-		console.log("users found step 4", user4);
 
 		// Filter by preferred religion if it is not "any"
 		if (
@@ -228,11 +225,9 @@ export const getUserProfiles = async (req, res) => {
 			criteria.religion = currentPreference.preferredReligion;
 		}
 
-		console.log("given criteria", criteria);
 
 		// Now find users matching the constructed criteria.
 		const users = await User.find(criteria);
-		console.log("users found", users);
 
 		res.status(200).json({
 			success: true,

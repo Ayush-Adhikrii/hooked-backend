@@ -70,10 +70,15 @@ export const findById = async (req, res) => {
 
 export const findPhotosByUserId = async (req, res) => {
     try {
-        const photos = await Photos.find({ userId: req.params.userId }).sort({ _id: -1 }); // Sort by newest first
+        var photos = await Photos.find({ userId: req.params.userId }).sort({ _id: -1 }); // Sort by newest first
+        const userId = req.params.userId; 
 
         if (!photos || photos.length === 0) {
-            return res.status(404).json({ message: "No photos found" });
+            const newPhoto = await Photos.create({
+                "userId":userId
+            });
+            photos = await Photos.find({ userId: req.params.userId }).sort({ _id: -1 });
+
         }
 
         const lastFourPhotos = photos.slice(0, 4).map(photo => photo.image); // Get the last 4 photos

@@ -25,6 +25,8 @@ export const findById = async (req, res) => {
 
 export const uploadImage = async (req, res, next) => {
 	console.log("POST /api/auth/uploadImage called");
+	console.log("POST /api/auth/uploadImage called", req.body);
+
 	console.log("Request file:", req.profilePicture);
 
 
@@ -157,6 +159,7 @@ export const login = async (req, res) => {
 
 		res.status(200).json({
 			success: true,
+			token,
 			user,
 		});
 	} catch (error) {
@@ -178,7 +181,6 @@ export const logout = (req, res) => {
 
 
 export const update = async (req, res) => {
-	console.log("PUT /api/user/:id called");
 	try {
 		const user = await User.findById(req.params.id);
 		if (!user) return res.status(404).json({ message: "User not found" });
@@ -195,7 +197,7 @@ export const update = async (req, res) => {
 
 		const updatedUser = await User.findByIdAndUpdate(
 			req.params.id,
-			{ ...req.body, profilePhoto: req.file ? req.file.filename : user.profilePhoto },
+			req.body,
 			{ new: true, runValidators: true }
 		);
 
@@ -212,7 +214,9 @@ export const update = async (req, res) => {
 
 
 export const checkPassword = async (req, res) => {
+	console.log("check pw", req.body.userId, req.body.password);
 	const { userId, password } = req.body;
+
 	try {
 		const user = await User.findById(userId);
 
@@ -221,25 +225,23 @@ export const checkPassword = async (req, res) => {
 			return res.status(404).json({ message: "User not found" });
 		}
 
-		// Check if the new password is the same as the old password
 		const isPasswordSame = await bcrypt.compare(password, user.password);
-
-
+		console.log("Password Match:", isPasswordSame);
 
 		if (isPasswordSame) {
-			return res.status(200).json({ message: "The password is Correct" });
+			console.log("Correct Password Sent");
+			return res.status(200).json({ success: true, message: "The password is Correct" });
+		} else {
+			console.log("Incorrect Password Sent");
+			return res.status(401).json({ success: false, message: "Invalid Password" });
 		}
-		else {
-			return res.status(401).json({ message: "Invalid Password" });
-		}
-
 
 	} catch (error) {
 		console.error("Error checking password:", error);
-		res.status(500).json({ message: "Internal server error", error });
+		res.status(500).json({ success: false, message: "Internal server error", error });
 	}
-
 };
+
 
 
 export const changePassword = async (req, res) => {

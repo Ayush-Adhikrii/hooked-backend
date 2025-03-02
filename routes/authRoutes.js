@@ -14,9 +14,10 @@ router.put("/update/:id", update);
 router.post("/logout", logout);
 router.post("/uploadImage", upload, uploadImage);
 router.put("/changePassword", changePassword);
-router.get("/checkPassword", checkPassword);
+router.post("/checkPassword", checkPassword);
 
 router.get("/me", protectRoute, (req, res) => {
+	console.log("theuseris", req.user);
 	res.send({
 		success: true,
 		user: req.user,

@@ -33,10 +33,10 @@ app.use(cookieParser());
 app.use(
 	cors({
 		origin: [
-			process.env.CLIENT_URL, 
-			"http://192.168.1.69:5000", 
-			"http://10.0.2.2:5000" 
-		  ],
+			process.env.CLIENT_URL,
+			"http://192.168.1.69:5000",
+			"http://10.0.2.2:5000"
+		],
 
 
 		credentials: true,

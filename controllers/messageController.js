@@ -43,6 +43,7 @@ export const getConversation = async (req, res) => {
 				{ sender: userId, receiver: req.user._id },
 			],
 		}).sort("createdAt");
+		console.log("messages is:",messages)
 
 		res.status(200).json({
 			success: true,

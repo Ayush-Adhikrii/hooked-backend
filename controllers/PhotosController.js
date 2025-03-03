@@ -12,6 +12,7 @@ export const findAll = async (req, res) => {
 }
 
 export const uploadPhoto = async (req, res, next) => {
+    console.log("made it here");
 
 
 
@@ -71,17 +72,17 @@ export const findById = async (req, res) => {
 export const findPhotosByUserId = async (req, res) => {
     try {
         var photos = await Photos.find({ userId: req.params.userId }).sort({ _id: -1 }); // Sort by newest first
-        const userId = req.params.userId; 
+        const userId = req.params.userId;
 
         if (!photos || photos.length === 0) {
             const newPhoto = await Photos.create({
-                "userId":userId
+                "userId": userId
             });
             photos = await Photos.find({ userId: req.params.userId }).sort({ _id: -1 });
 
         }
 
-        const lastFourPhotos = photos.slice(0, 4).map(photo => photo.image); // Get the last 4 photos
+        const lastFourPhotos = photos.slice(0, 5).map(photo => photo.image); // Get the last 4 photos
         res.status(200).json(lastFourPhotos);
     } catch (e) {
         console.error("Error finding photos", e);

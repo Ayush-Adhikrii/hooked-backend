@@ -151,7 +151,6 @@ export const getLikers = async (req, res) => {
 
 
 export const getUserProfiles = async (req, res) => {
-	console.log("this is user", req.user)
 	try {
 		// Get current user based on authenticated req.user.id
 		const currentUser = await User.findById(req.user._id);
@@ -161,7 +160,6 @@ export const getUserProfiles = async (req, res) => {
 
 		// Get the current user's preference document
 		const currentPreference = await Preference.findOne({ userId: req.user.id });
-		console.log("this is the list of prefs", currentPreference);
 
 		// Start building the query criteria.
 		// Exclude the current user as well as users already liked, disliked, or matched.
@@ -175,7 +173,7 @@ export const getUserProfiles = async (req, res) => {
 				]
 			}
 		};
-	
+
 
 		// Filter by gender if the preference is not "any"
 		if (
@@ -186,7 +184,7 @@ export const getUserProfiles = async (req, res) => {
 			criteria.gender = currentPreference.preferredGender;
 		}
 
-	
+
 
 		// Filter by age using birthDate (if minAge and maxAge exist)
 		// if (currentPreference && currentPreference.minAge && currentPreference.maxAge) {

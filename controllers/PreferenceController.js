@@ -96,6 +96,7 @@ export const findPreferenceByUserId = async (req, res) => {
 
 
 export const updatePreferenceByUserId = async (req, res) => {
+    console.log("inside update pref")
     try {
         // Extract user id from route parameters
         const userId = req.params.id;

@@ -46,6 +46,7 @@ export const findByUserId = async (req, res) => {
 
         // Try to find the UserDetail by userId
         let userDetail = await UserDetails.findOne({ userId: userId });
+        console.log("controller", userDetail)
 
         if (!userDetail) {
             // If no userDetail is found, create a new one with the given userId

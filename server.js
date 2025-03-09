@@ -8,6 +8,7 @@ import path from "path";
 // routes
 import authRoutes from "./routes/authRoutes.js";
 import detailsRoutes from "./routes/detailsRoute.js";
+import esewaRoutes from "./routes/esewaRoutes.js";
 import matchRoutes from "./routes/matchRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import photoRoutes from "./routes/photosRoutes.js";
@@ -51,6 +52,7 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/photos", photoRoutes);
 app.use("/api/preference", preferenceRoutes);
 app.use("/api/subscription", subscriptionRoutes);
+app.use("/api/payment", esewaRoutes);
 
 
 if (process.env.NODE_ENV === "production") {

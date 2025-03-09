@@ -42,7 +42,7 @@ export const uploadImage = async (req, res, next) => {
 
 export const signup = async (req, res) => {
 	console.log("POST /api/user called");
-	console.log("Request body and the pw isnt hashed:", req.body);
+	console.log("Request body and the pw isnt hashed:", req.body.password);
 	console.log("checkpoint");
 
 	try {
@@ -58,7 +58,7 @@ export const signup = async (req, res) => {
 			bio,
 			profilePhoto,
 		} = req.body;
-
+		console.log("paswword", password)
 		// Check if a user with the same username already exists
 		const existingUser = await User.findOne({ userName });
 		if (existingUser) {
@@ -153,7 +153,7 @@ export const login = async (req, res) => {
 		res.cookie("jwt", token, {
 			maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
 			httpOnly: true, // prevents XSS attacks
-			sameSite: "strict", // prevents CSRF attacks
+			sameSite: "None", // prevents CSRF attacks
 			secure: process.env.NODE_ENV === "production",
 		});
 

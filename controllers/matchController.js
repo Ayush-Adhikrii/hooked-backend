@@ -113,8 +113,8 @@ export const getMatches = async (req, res) => {
 
 export const getLikers = async (req, res) => {
 	try {
-		console.log("inside this")
 		const { userId } = req.params;
+		console.log("inside this",userId);
 
 		// Fetch the current user
 		const currentUser = await User.findById(userId);

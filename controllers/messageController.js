@@ -1,59 +1,72 @@
 import Message from "../models/Message.js";
+import User from "../models/User.js";
 import { getConnectedUsers, getIO } from "../socket/socket.server.js";
+import { BadRequestError, ForbiddenError } from "../utils/AppError.js";
 
 export const sendMessage = async (req, res) => {
-	try {
-		const { content, receiverId } = req.body;
+	const { content, receiverId } = req.body;
 
-		const newMessage = await Message.create({
-			sender: req.user.id,
-			receiver: receiverId,
-			content,
-		});
+	if (!receiverId || !content?.trim()) {
+		throw new BadRequestError("receiverId and content are required");
+	}
 
-		const io = getIO();
-		const connectedUsers = getConnectedUsers();
-		const receiverSocketId = connectedUsers.get(receiverId);
+	const currentUser = await User.findById(req.user.id);
+	const isMatch = currentUser.matches.some((id) => id.toString() === receiverId);
+	if (!isMatch) {
+		throw new ForbiddenError("You can only message your matches");
+	}
 
-		if (receiverSocketId) {
-			io.to(receiverSocketId).emit("newMessage", {
-				message: newMessage,
-			});
-		}
+	const newMessage = await Message.create({
+		sender: req.user.id,
+		receiver: receiverId,
+		content: content.trim(),
+	});
 
-		res.status(201).json({
-			success: true,
+	const io = getIO();
+	const connectedUsers = getConnectedUsers();
+	const receiverSocketId = connectedUsers.get(receiverId);
+
+	if (io && receiverSocketId) {
+		io.to(receiverSocketId).emit("newMessage", {
 			message: newMessage,
 		});
-	} catch (error) {
-		console.log("Error in sendMessage: ", error);
-		res.status(500).json({
-			success: false,
-			message: "Internal server error",
-		});
 	}
+
+	res.status(201).json({
+		success: true,
+		message: newMessage,
+	});
 };
 
 export const getConversation = async (req, res) => {
 	const { userId } = req.params;
-	try {
-		const messages = await Message.find({
-			$or: [
-				{ sender: req.user._id, receiver: userId },
-				{ sender: userId, receiver: req.user._id },
-			],
-		}).sort("createdAt");
-		console.log("messages is:",messages)
 
-		res.status(200).json({
-			success: true,
-			messages,
-		});
-	} catch (error) {
-		console.log("Error in getConversation: ", error);
-		res.status(500).json({
-			success: false,
-			message: "Internal server error",
-		});
-	}
+	// Default limit is generous so existing callers that don't pass
+	// page/limit keep seeing the full recent conversation they always have.
+	const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+	const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 200, 1), 500);
+
+	const query = {
+		$or: [
+			{ sender: req.user._id, receiver: userId },
+			{ sender: userId, receiver: req.user._id },
+		],
+	};
+
+	const [messages, total] = await Promise.all([
+		Message.find(query)
+			.sort("createdAt")
+			.skip((page - 1) * limit)
+			.limit(limit),
+		Message.countDocuments(query),
+	]);
+
+	res.status(200).json({
+		success: true,
+		messages,
+		page,
+		limit,
+		total,
+		hasMore: page * limit < total,
+	});
 };

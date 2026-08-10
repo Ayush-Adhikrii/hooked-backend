@@ -23,12 +23,17 @@ export const protectRoute = async (req, res, next) => {
 
 		const currentUser = await User.findById(decoded.id);
 
+		if (!currentUser) {
+			return res.status(401).json({
+				success: false,
+				message: "Not authorized - User no longer exists",
+			});
+		}
+
 		req.user = currentUser;
 
 		next();
 	} catch (error) {
-		console.log("Error in auth middleware: ", error);
-
 		if (error instanceof jwt.JsonWebTokenError) {
 			return res.status(401).json({
 				success: false,

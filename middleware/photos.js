@@ -1,30 +1,6 @@
-import fs from "fs";
 import multer from "multer";
-import path from "path";
-import { fileURLToPath } from "url";
 
-const maxSize = 10 * 1024 * 1024; // 4MB
-
-// Get the current file directory (for ES modules)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Uploaded photos live in this backend's own public folder and are served by
-// server.js via express.static - the frontend fetches them as absolute URLs
-// against the API origin, not as bare same-origin paths.
-const userImagesDir = path.join(__dirname, "../public/userImages");
-fs.mkdirSync(userImagesDir, { recursive: true });
-
-// Set up Multer storage
-const storage = multer.diskStorage({
-	destination: (req, file, cb) => {
-		cb(null, userImagesDir);
-	},
-	filename: (req, file, cb) => {
-		let ext = path.extname(file.originalname);
-		cb(null, `IMG-${Date.now()}` + ext);
-	},
-});
+const maxSize = 10 * 1024 * 1024; // 10MB
 
 const imageFileFilter = (req, file, cb) => {
 	if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
@@ -33,8 +9,10 @@ const imageFileFilter = (req, file, cb) => {
 	cb(null, true);
 };
 
+// Buffered in memory, then streamed to Cloudinary by the controller
+// (see utils/uploadToCloudinary.js) - never written to local disk.
 export const photo = multer({
-	storage: storage,
+	storage: multer.memoryStorage(),
 	fileFilter: imageFileFilter,
 	limits: { fileSize: maxSize },
 }).single("userPhoto");

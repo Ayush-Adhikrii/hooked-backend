@@ -1,5 +1,6 @@
 import Photos from "../models/Photos.js";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../utils/AppError.js";
+import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary.js";
 
 const MAX_PHOTOS_PER_USER = 4;
 
@@ -12,9 +13,10 @@ export const uploadPhoto = async (req, res) => {
 	if (!req.file) {
 		throw new BadRequestError("Please upload a file");
 	}
+	const result = await uploadBufferToCloudinary(req.file.buffer, "hooked/userImages");
 	res.status(200).json({
 		success: true,
-		data: req.file.filename,
+		data: result.secure_url,
 	});
 };
 

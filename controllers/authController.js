@@ -7,6 +7,7 @@ import Subscription from "../models/Subscription.js";
 import User from "../models/User.js";
 import UserDetails from "../models/UserDetails.js";
 import { BadRequestError, ForbiddenError, NotFoundError, UnauthorizedError } from "../utils/AppError.js";
+import { uploadBufferToCloudinary } from "../utils/uploadToCloudinary.js";
 
 const signToken = (id) => {
 	return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -38,9 +39,10 @@ export const uploadImage = async (req, res) => {
 	if (!req.file) {
 		throw new BadRequestError("Please upload a file");
 	}
+	const result = await uploadBufferToCloudinary(req.file.buffer, "hooked/profilePhotos");
 	res.status(200).json({
 		success: true,
-		data: req.file.filename,
+		data: result.secure_url,
 	});
 };
 

@@ -1,0 +1,11 @@
+node_modules
+.env
+.env.*
+!.env.example
+npm-debug.log*
+*.log
+.DS_Store
+
+# User-uploaded photos only - seed/fixture images (f1-f5, m1-m5, default_profile) stay tracked
+/public/profilePhotos/IMG-*
+/public/userImages/IMG-*

@@ -1,0 +1,47 @@
+{
+	"name": "hooked-backend",
+	"version": "1.0.0",
+	"main": "server.js",
+	"type": "module",
+	"scripts": {
+		"start": "nodemon server.js",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"seed": "node scripts/seed.js",
+		"prepare": "husky"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"lint-staged": {
+		"*.js": "prettier --write"
+	},
+	"dependencies": {
+		"bcryptjs": "^3.0.1",
+		"cloudinary": "^2.5.1",
+		"cookie-parser": "^1.4.7",
+		"cors": "^2.8.5",
+		"dotenv": "^16.4.7",
+		"express": "^4.21.2",
+		"express-rate-limit": "^8.6.2",
+		"helmet": "^8.3.0",
+		"jsonwebtoken": "^9.0.2",
+		"mongoose": "^8.9.3",
+		"multer": "^1.4.5-lts.1",
+		"socket.io": "^4.8.1",
+		"uuid": "^11.0.5",
+		"zod": "^4.4.3"
+	},
+	"devDependencies": {
+		"husky": "^9.1.7",
+		"lint-staged": "^16.4.0",
+		"mongodb-memory-server": "^11.2.0",
+		"nodemon": "^3.1.9",
+		"prettier": "^3.9.6",
+		"supertest": "^7.2.2",
+		"vitest": "^4.1.10"
+	}
+}

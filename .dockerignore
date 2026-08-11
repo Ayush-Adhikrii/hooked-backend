@@ -1,0 +1,32 @@
+# Dependencies - reinstalled fresh via npm ci inside the image
+node_modules
+
+# Secrets - never baked into an image, injected at run time instead
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+*.log
+
+# Dev/test tooling - no purpose in a running container
+tests
+vitest.config.js
+.prettierrc
+.prettierignore
+.husky
+.vscode
+
+# Docs
+README.md
+API.md
+
+# VCS and Docker meta files
+.git
+.gitignore
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+.DS_Store

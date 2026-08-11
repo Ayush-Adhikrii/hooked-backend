@@ -1,13 +1,5 @@
 import express from "express";
-import {
-	deleteById,
-	findAll,
-	findByUserId,
-	findDetail,
-	saveDetails,
-	update,
-	updateDetail,
-} from "../controllers/UserDetailsController.js";
+import { deleteById, findAll, findDetail, saveDetails, updateDetail } from "../controllers/userDetailsController.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 import { protectRoute } from "../middleware/auth.js";
 const router = express.Router();

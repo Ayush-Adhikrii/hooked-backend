@@ -6,7 +6,7 @@ import {
 	findByUserId,
 	saveDetails,
 	update,
-} from "../controllers/UserDetailsController.js";
+} from "../controllers/userDetailsController.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 import { protectRoute } from "../middleware/auth.js";
 const router = express.Router();
